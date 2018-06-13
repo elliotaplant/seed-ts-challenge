@@ -1,6 +1,6 @@
 const WebSocketServer = require('websocket').server;
 const http = require('http');
-const GdaxSocket = require('./GdaxSocket/GdaxSocket');
+const GdaxSocket = require('./GdaxSocket');
 
 const server = http.createServer(function(request, response) {
   // process HTTP request. Since we're writing just WebSockets
