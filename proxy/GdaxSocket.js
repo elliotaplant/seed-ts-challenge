@@ -12,7 +12,6 @@ class GdaxSocket {
 
   addListener(type, handler) {
     const id = uuid();
-    console.log('id', id);
     if (type === 'snapshot') {
       this.onSnapshot[id] = handler;
     } else if (type === 'update') {
@@ -43,7 +42,10 @@ class GdaxSocket {
 
     websocket.on('message', (data) => {
       if (data.type === 'snapshot') {
-        this.callAllHandlers(this.onSnapshot, data)
+        let { asks, bids, type } = data;
+        asks = asks.slice(0, 100).map(([usd, btc]) => ({usd, btc}));
+        bids = bids.slice(0, 100).map(([usd, btc]) => ({usd, btc}));
+        this.callAllHandlers(this.onSnapshot, JSON.stringify({asks, bids, type}));
       } else if (data.type === 'l2update') {
         this.callAllHandlers(this.onUpdate, data)
       }
