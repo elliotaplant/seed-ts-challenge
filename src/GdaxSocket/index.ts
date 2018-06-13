@@ -23,3 +23,5 @@ class GdaxSocket {
     websocket.on('close', this.onClose);
   }
 }
+
+export default GdaxSocket;

@@ -1,22 +1,31 @@
 import * as React from 'react';
-import './App.css';
+import {connect} from 'react-redux';
+import {connectToApiSocket} from './client';
+import Header from './components/Header';
+import OrderBook from './components/OrderBook';
+import GdaxSocket from './GdaxSocket';
+import {updateOrdersAction} from './store/actions/order';
 
-import logo from './logo.svg';
-
+// Main App class to gather subcomponents
 class App extends React.Component {
-  public render() {
-    return (
-      <div className="App">
-        <header className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <h1 className="App-title">Welcome to React</h1>
-        </header>
-        <p className="App-intro">
-          To get started, edit <code>src/App.tsx</code> and save to reload.
-        </p>
-      </div>
+
+  public componentDidMount() {
+    const apiClient = new GdaxSocket(
+      (data) => console.log('data', data),
+      (error) => console.error(error),
+      () => console.log('Socket closed')
     );
+  }
+
+  public render() {
+    return(<div className="app">
+      <Header />
+      <OrderBook />
+    </div>)
   }
 }
 
-export default App;
+const mapDispatchToProps = (dispatch) => ({
+  updateData: (newData) => dispatch(updateOrdersAction(newData))
+});
+export default connect(null, mapDispatchToProps)(App);

@@ -665,7 +665,7 @@ In this case, we've added several image file extensions as valid module formats.
 Now that the compiler is configured, here is an example of importing an image file:
 
 ```js
-import React from 'react';
+import * as React from 'react';
 import logo from './logo.svg'; // Tell Webpack this JS file uses this image
 
 console.log(logo); // /logo.84287d09.png
