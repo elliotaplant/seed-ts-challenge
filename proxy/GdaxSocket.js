@@ -42,12 +42,15 @@ class GdaxSocket {
 
     websocket.on('message', (data) => {
       if (data.type === 'snapshot') {
-        console.log('data', data);
         let { asks, bids, type } = data;
-        asks = asks.slice(0, 100).map(([price, size]) => ({price, size}));
-        bids = bids.slice(0, 100).map(([price, size]) => ({price, size}));
+        asks = this.digestOrders(asks);
+        bids = this.digestOrders(bids);
         this.callAllHandlers(this.onSnapshot, JSON.stringify({asks, bids, type}));
       } else if (data.type === 'l2update') {
+
+        console.log('data', data);
+        let { asks, bids, type } = data;
+
         this.callAllHandlers(this.onUpdate, data)
       }
     });
@@ -63,6 +66,13 @@ class GdaxSocket {
     for (let handler in handlerMap) {
       data ? handlerMap[handler](data) : handlerMap[handler]();
     }
+  }
+
+  digestOrders(orders) {
+    return orders.slice(0, 100).reduce((allOrders, [price, size]) => {
+      allOrders[price] = size;
+      return allOrders
+    }, {});
   }
 }
 

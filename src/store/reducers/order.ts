@@ -9,11 +9,8 @@ export default function reducer(state = {
 }, { type, payload }: any) {
   // The search request has been sent
   if (type === SNAPSHOT) {
-    return {
-      ...state,
-      asks: payload.asks,
-      bids: payload.bids
-    };
+    const { asks, bids } = payload;
+    return { ...state, asks, bids };
   } else if (type === UPDATE_ORDER) {
     return {
       ...state,

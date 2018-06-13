@@ -1,18 +1,16 @@
-export interface IOrder {
-  price: number;
-  size: number;
-}
+export interface IOrders { [price: string]: string }; // price: size
+
 export interface IChange {
   side: string;
-  price: number;
-  newSize: number ;
+  price: string;
+  newSize: string;
 }
 
 export interface IL2Snapshot {
   type: 'snapshot'
   product_id: string
-  bids: IOrder;
-  asks: IOrder;
+  bids: IOrders;
+  asks: IOrders;
 }
 
 export interface IL2Update {
