@@ -1,4 +1,4 @@
-import GdaxSocket from './GdaxSocket';
+const GdaxSocket = require('./GdaxSocket');
 
 const gdaxSocket = new GdaxSocket(
   (data) => console.log('snapshot', data),
@@ -6,5 +6,3 @@ const gdaxSocket = new GdaxSocket(
   (error) => console.error(error),
   () => console.log('Socket closed')
 );
-
-export default gdaxSocket;
