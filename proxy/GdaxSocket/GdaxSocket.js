@@ -1,27 +1,65 @@
 const Gdax = require('gdax');
+const uuid = require('uuid');
 
 class GdaxSocket {
-  constructor(onSnapshot, onUpdate, onError, onClose) {
-    this.onSnapshot = onSnapshot;
-    this.onUpdate = onUpdate;
-    this.onError = onError;
-    this.onClose = onClose;
+  // Initialize listeners
+  constructor() {
+    this.onSnapshot = {};
+    this.onUpdate = {};
+    this.onError = {};
+    this.onClose = {};
+  }
+
+  addListener(type, handler) {
+    const id = uuid();
+    console.log('id', id);
+    if (type === 'snapshot') {
+      this.onSnapshot[id] = handler;
+    } else if (type === 'update') {
+      this.onUpdate[id] = handler;
+    } else if (type === 'error') {
+      this.onError[id] = handler;
+    } else if (type === 'close') {
+      this.onClose[id] = handler;
+    }
+    return id;
+  }
+
+  removeListener(type, id) {
+    if (type === 'snapshot') {
+      delete this.onSnapshot[id];
+    } else if (type === 'update') {
+      delete this.onUpdate[id];
+    } else if (type === 'error') {
+      delete this.onError[id];
+    } else if (type === 'close') {
+      delete this.onClose[id];
+    }
+    return id;
   }
 
   init() {
-    const websocket = new Gdax.WebsocketClient([
-      'BTC-USD', 'ETH-USD'
-    ], 'wss://ws.coinapi.io/v1/', undefined, {channels: ['level2']});
+    const websocket = new Gdax.WebsocketClient([ 'BTC-USD' ], 'wss://ws-feed.gdax.com', null, { channels: ['level2']});
 
     websocket.on('message', (data) => {
       if (data.type === 'snapshot') {
-        this.onSnapshot(data);
+        this.callAllHandlers(this.onSnapshot, data)
       } else if (data.type === 'l2update') {
-        this.onUpdate(data);
+        this.callAllHandlers(this.onUpdate, data)
       }
     });
-    websocket.on('error', this.onError);
-    websocket.on('close', this.onClose);
+    websocket.on('error', error => {
+      this.callAllHandlers(this.onError, error)
+    });
+    websocket.on('close', () => {
+      this.callAllHandlers(this.onClose)
+    });
+  }
+
+  callAllHandlers(handlerMap, data) {
+    for (let handler in handlerMap) {
+      data ? handlerMap[handler](data) : handlerMap[handler]();
+    }
   }
 }
 
