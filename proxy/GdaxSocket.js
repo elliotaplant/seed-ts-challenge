@@ -38,20 +38,18 @@ class GdaxSocket {
   }
 
   init() {
-    const websocket = new Gdax.WebsocketClient([ 'BTC-USD' ], 'wss://ws-feed.gdax.com', null, { channels: ['level2']});
+    const websocket = new Gdax.WebsocketClient(['BTC-USD'], 'wss://ws-feed.gdax.com', null, {channels: ['level2']});
 
     websocket.on('message', (data) => {
       if (data.type === 'snapshot') {
-        let { asks, bids, type } = data;
+        let {asks, bids, type} = data;
         asks = this.digestOrders(asks);
         bids = this.digestOrders(bids);
         this.callAllHandlers(this.onSnapshot, JSON.stringify({asks, bids, type}));
       } else if (data.type === 'l2update') {
-
-        console.log('data', data);
-        let { asks, bids, type } = data;
-
-        this.callAllHandlers(this.onUpdate, data)
+        let {changes, type} = data;
+        changes = this.digestChanges(changes);
+        this.callAllHandlers(this.onUpdate, JSON.stringify({changes, type}));
       }
     });
     websocket.on('error', error => {
@@ -64,7 +62,9 @@ class GdaxSocket {
 
   callAllHandlers(handlerMap, data) {
     for (let handler in handlerMap) {
-      data ? handlerMap[handler](data) : handlerMap[handler]();
+      data
+        ? handlerMap[handler](data)
+        : handlerMap[handler]();
     }
   }
 
@@ -73,6 +73,16 @@ class GdaxSocket {
       allOrders[price] = size;
       return allOrders
     }, {});
+  }
+
+  digestChanges(changes) {
+    return changes.reduce((allChanges, [side, price, size]) => {
+      allChanges[side][price] = size;
+      return allChanges
+    }, {
+      buy: {},
+      sell: {}
+    });
   }
 }
 

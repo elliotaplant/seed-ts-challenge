@@ -1,9 +1,8 @@
 export interface IOrders { [price: string]: string }; // price: size
 
-export interface IChange {
-  side: string;
-  price: string;
-  newSize: string;
+export interface IChanges {
+  buy: IOrders;
+  sell: IOrders;
 }
 
 export interface IL2Snapshot {
@@ -16,7 +15,7 @@ export interface IL2Snapshot {
 export interface IL2Update {
   type: 'l2update'
   product_id: string
-  changes: IChange;
+  changes: IChanges;
 }
 
 export type WebsocketMessage = IL2Snapshot | IL2Update;
