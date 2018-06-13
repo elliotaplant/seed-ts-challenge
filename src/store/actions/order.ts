@@ -2,7 +2,7 @@ import {createAction} from 'redux-actions';
 import {UPDATE_ORDER} from '../types';
 
 const sequesterOrders = (orders: any) => {
-  return orders.reduce((sequestered, order) => {
+  return orders.reduce((sequestered: any, order: any) => {
     if (!sequestered.has(order.price)) {
       sequestered.set(order.price, 0);
     }
@@ -13,13 +13,13 @@ const sequesterOrders = (orders: any) => {
 };
 
 // TODO: add "midpoint"
-const orderSequesters = (sequesteredOrders) => {
+const orderSequesters = (sequesteredOrders: any) => {
   return Array.from(sequesteredOrders)
     .map(([price, size]) => ({ price, size }))
     .sort(({price: a}, {price: b}) => (a > b ? 1 : (a < b ? -1 : 0)));
 }
 
-const updateOrder = (newData) => {
+const updateOrder = (newData: any) => {
   // TODO: use a websocket for this
   // update the orders in the store.
   const sequesteredOrders = sequesterOrders(newData);

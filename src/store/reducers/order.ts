@@ -5,7 +5,7 @@ export default function reducer(state = {
   connecting: false,
   error: '',
   orders: [],
-}, {type, payload}) {
+}, {type, payload}: any) {
   // The search request has been sent
   if (type === UPDATE_ORDER) {
     return {

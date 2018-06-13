@@ -1,27 +1,9 @@
-import Gdax from 'gdax';
+import GdaxSocket from './GdaxSocket';
 
-interface ISocketData {
-  moo: string;
-}
+const gdaxSocket = new GdaxSocket(
+  (data) => console.log('data', data),
+  (error) => console.error(error),
+  () => console.log('Socket closed')
+);
 
-interface ISocketError {
-  moo: string;
-}
-
-class GdaxSocket {
-  constructor(
-    private onMessage: (data: ISocketData) => void,
-    private onError: (err: ISocketError) => void,
-    private onClose: () => void
-  ) { }
-
-  public init() {
-    const websocket = new Gdax.WebsocketClient(['BTC-USD', 'ETH-USD']);
-
-    websocket.on('message', this.onMessage);
-    websocket.on('error', this.onError);
-    websocket.on('close', this.onClose);
-  }
-}
-
-export default GdaxSocket;
+export default gdaxSocket;
