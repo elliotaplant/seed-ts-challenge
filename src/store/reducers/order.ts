@@ -2,10 +2,11 @@ import { SNAPSHOT, UPDATE_ORDER } from '../types';
 
 // Reducer for handling all actions
 export default function reducer(state = {
+  asks: [],
+  bids: [],
   connecting: false,
   error: '',
-  orders: [],
-}, {type, payload}: any) {
+}, { type, payload }: any) {
   // The search request has been sent
   if (type === SNAPSHOT) {
     return {

@@ -21,11 +21,11 @@ wsServer.on('request', function(request) {
   const gdaxSocket = new GdaxSocket();
 
   gdaxSocket.addListener('snapshot', (data) => {
-    messageListenerId = connection.sendUTF(JSON.stringify(data))
+    messageListenerId = connection.sendUTF(data);
   });
 
   gdaxSocket.addListener('update', (data) => {
-    messageListenerId = connection.sendUTF(JSON.stringify(data))
+    messageListenerId = connection.sendUTF(data);
   });
 
   gdaxSocket.init();

@@ -30,11 +30,6 @@ const updateOrder = (newData: any) => {
 
 export const updateOrdersAction = createAction(UPDATE_ORDER, updateOrder);
 
-const snapshot = (data: IL2Snapshot) => {
-  let { asks, bids } = data;
-  asks = asks.slice(0, 100);
-  bids = bids.slice(0, 100);
-  return { asks, bids };
-};
+const snapshot = (data: IL2Snapshot) => data;
 
 export const snapshotAction = createAction(SNAPSHOT, snapshot);

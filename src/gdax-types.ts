@@ -1,6 +1,6 @@
 export interface IOrder {
-  usd: number;
-  btc: number;
+  price: number;
+  size: number;
 }
 export interface IChange {
   side: string;

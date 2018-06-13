@@ -42,9 +42,10 @@ class GdaxSocket {
 
     websocket.on('message', (data) => {
       if (data.type === 'snapshot') {
+        console.log('data', data);
         let { asks, bids, type } = data;
-        asks = asks.slice(0, 100).map(([usd, btc]) => ({usd, btc}));
-        bids = bids.slice(0, 100).map(([usd, btc]) => ({usd, btc}));
+        asks = asks.slice(0, 100).map(([price, size]) => ({price, size}));
+        bids = bids.slice(0, 100).map(([price, size]) => ({price, size}));
         this.callAllHandlers(this.onSnapshot, JSON.stringify({asks, bids, type}));
       } else if (data.type === 'l2update') {
         this.callAllHandlers(this.onUpdate, data)
