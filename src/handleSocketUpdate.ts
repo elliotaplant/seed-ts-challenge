@@ -1,4 +1,6 @@
 import { WebsocketMessage } from './gdax-types';
+import store from './store';
+import { snapshotAction } from './store/actions/order';
 
 // import store from './store';
 export default function handleSocketUpdate(update: any) {
@@ -12,7 +14,8 @@ export default function handleSocketUpdate(update: any) {
   console.log('asJson.type', asJson.type);
   if (asJson.type === 'snapshot') {
     console.log('got snapshot', asJson);
+    store.dispatch(snapshotAction(asJson));
   } else if (asJson.type === 'l2update') {
-    console.log('got update', asJson);
+    // console.log('got update', asJson);
   }
 }
