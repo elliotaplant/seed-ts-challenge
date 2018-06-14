@@ -21,10 +21,6 @@ wsServer.on('request', function(request) {
   const gdaxSocket = new GdaxSocket();
   console.log('gdaxSocket', gdaxSocket);
 
-
-  gdaxSocket.addListener('update', (data) => {
-    messageListenerId = connection.sendUTF(data);
-  });
   gdaxSocket.onUpdate((update) => {
     messageListenerId = connection.sendUTF(JSON.stringify(update));
   });
