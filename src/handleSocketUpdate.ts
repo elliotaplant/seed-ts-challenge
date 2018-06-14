@@ -11,7 +11,5 @@ export default function handleSocketUpdate(update: any) {
     return console.error('Unable to parse message as JSON');
   }
 
-  console.log('asJson', asJson);
-
   store.dispatch(updateOrdersAction(asJson));
 }
