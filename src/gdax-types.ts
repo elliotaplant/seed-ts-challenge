@@ -1,8 +1,11 @@
 export interface IOrders { [price: string]: string }; // price: size
-
+export interface IChange {
+  update: IOrders;
+  delete: string[]; // list of prices to delete
+}
 export interface IChanges {
-  buy: IOrders;
-  sell: IOrders;
+  buy: IChange;
+  sell: IChange;
 }
 
 export interface IL2Snapshot {

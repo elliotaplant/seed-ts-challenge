@@ -69,7 +69,7 @@ class GdaxSocket {
   }
 
   digestOrders(orders) {
-    return orders.slice(0, 100).reduce((allOrders, [price, size]) => {
+    return orders.slice(0, 20).reduce((allOrders, [price, size]) => {
       allOrders[price] = size;
       return allOrders
     }, {});
@@ -77,11 +77,21 @@ class GdaxSocket {
 
   digestChanges(changes) {
     return changes.reduce((allChanges, [side, price, size]) => {
-      allChanges[side][price] = size;
+      if (size === '0') {
+        allChanges[side].delete.push(price);
+      } else {
+        allChanges[side].update[price] = size;
+      }
       return allChanges
     }, {
-      buy: {},
-      sell: {}
+      buy: {
+        update: {},
+        delete: []
+      },
+      sell: {
+        update: {},
+        delete: []
+      }
     });
   }
 }
