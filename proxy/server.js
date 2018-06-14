@@ -19,13 +19,14 @@ wsServer.on('request', function(request) {
   const connection = request.accept(null, request.origin);
   let messageListenerId = null;
   const gdaxSocket = new GdaxSocket();
+  console.log('gdaxSocket', gdaxSocket);
 
-  gdaxSocket.addListener('snapshot', (data) => {
-    messageListenerId = connection.sendUTF(data);
-  });
 
   gdaxSocket.addListener('update', (data) => {
     messageListenerId = connection.sendUTF(data);
+  });
+  gdaxSocket.onUpdate((update) => {
+    messageListenerId = connection.sendUTF(JSON.stringify(update));
   });
 
   gdaxSocket.init();
