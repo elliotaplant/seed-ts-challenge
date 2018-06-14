@@ -2,6 +2,10 @@ const WebSocketServer = require('websocket').server;
 const http = require('http');
 const GdaxSocket = require('./GdaxSocket');
 
+// Open the GdaxSocket, start receiving data
+const gdaxSocket = new GdaxSocket();
+gdaxSocket.init();
+
 const server = http.createServer(function(request, response) {
   // process HTTP request. Since we're writing just WebSockets
   // server we don't have to implement anything.
@@ -17,29 +21,15 @@ wsServer = new WebSocketServer({httpServer: server});
 // WebSocket server
 wsServer.on('request', function(request) {
   const connection = request.accept(null, request.origin);
-  let messageListenerId = null;
-  const gdaxSocket = new GdaxSocket();
-  console.log('gdaxSocket', gdaxSocket);
-
-  gdaxSocket.onUpdate((update) => {
-    messageListenerId = connection.sendUTF(JSON.stringify(update));
+  const messageHandlerId = gdaxSocket.onUpdate((update) => {
+    connection.sendUTF(JSON.stringify(update));
   });
 
-  gdaxSocket.init();
-
-
-  // This is the most important callback for us, we'll handle
-  // all messages from users here.
-  connection.on('message', function(message) {
-    if (message.type === 'utf8') {
-      // process WebSocket message
-    }
-  });
 
   connection.on('close', function(connection) {
     // close user connection
     if (messageListenerId) {
-      gdaxSocket.removeListener('message', messageListenerId);
+      gdaxSocket.removeHandler(messageHandlerId);
     };
   });
 });

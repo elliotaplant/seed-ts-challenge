@@ -4,22 +4,29 @@ const uuid = require('uuid');
 class GdaxSocket {
   // Initialize listeners
   constructor() {
+    // List of listeners for updates
+    this.updateHandlers = {};
+    
     // Store list of asks and bids to send to front end
-    this.id = uuid();
     this.asks = [];
     this.bids = [];
   }
 
   onUpdate(handler) {
-    this.updateHandler = handler;
+    const id = uuid();
+    this.updateHandlers[id] = handler;
+    return id;
+  }
+
+  removeHandler(id) {
+    delete this.updateHandlers[id];
   }
 
   sendUpdate() {
-    console.log('sending update', this.id);
-    this.updateHandler({
+    Object.keys(this.updateHandlers).forEach(handlerId => this.updateHandlers[handlerId]({
       asks: this.priceMapToOrders(this.asks),
       bids: this.priceMapToOrders(this.bids)
-    })
+    }));
   }
 
   init() {
@@ -30,8 +37,8 @@ class GdaxSocket {
 
       if (data.type === 'snapshot') {
         let {asks, bids, type} = data;
-        this.asks = this.ordersToPriceMap(asks);
-        this.bids = this.ordersToPriceMap(bids);
+        this.asks = this.pruneSizeMap(this.ordersToPriceMap(asks))
+        this.bids = this.pruneSizeMap(this.ordersToPriceMap(bids));
         this.sendUpdate();
       } else if (data.type === 'l2update') {
         const {changes, type} = data;
