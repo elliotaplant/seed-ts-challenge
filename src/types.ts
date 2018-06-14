@@ -1,6 +1,8 @@
-import { IOrders } from './gdax-types';
-
-export interface IAppState {
-  asks: IOrders;
-  bids: IOrders;
+export interface IOrder {
+  price: string;
+  size: string;
+}
+export interface IOrdersUpdate {
+  asks: IOrder[];
+  bids: IOrder[];
 }

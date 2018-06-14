@@ -6,7 +6,7 @@ class GdaxSocket {
   constructor() {
     // List of listeners for updates
     this.updateHandlers = {};
-    
+
     // Store list of asks and bids to send to front end
     this.asks = [];
     this.bids = [];
@@ -37,8 +37,8 @@ class GdaxSocket {
 
       if (data.type === 'snapshot') {
         let {asks, bids, type} = data;
-        this.asks = this.pruneSizeMap(this.ordersToPriceMap(asks))
-        this.bids = this.pruneSizeMap(this.ordersToPriceMap(bids));
+        this.asks = this.pruneSizeMap(this.ordersToPriceMap(asks));
+        this.bids = this.pruneSizeMap(this.ordersToPriceMap(bids), -1);
         this.sendUpdate();
       } else if (data.type === 'l2update') {
         const {changes, type} = data;
@@ -88,13 +88,7 @@ class GdaxSocket {
   }
 
   sortOrders(orders) {
-    return orders.sort(([a], [b]) => (
-      + a > + b
-      ? 1
-      : (
-        + a < + b
-        ? -1
-        : 0)));
+    return orders.sort((a, b) => (+a > +b ? 1 : (+a < +b ? -1 : 0)));
   }
 
   priceMapToOrders(priceMap) {

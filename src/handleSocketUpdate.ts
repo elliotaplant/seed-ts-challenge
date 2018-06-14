@@ -1,21 +1,15 @@
-import { WebsocketMessage } from './gdax-types';
 import store from './store';
-import { snapshotAction, updateAction } from './store/actions/order';
+import { updateOrdersAction } from './store/actions/order';
+import { IOrdersUpdate } from './types';
 
 // import store from './store';
 export default function handleSocketUpdate(update: any) {
-  let asJson: WebsocketMessage;
+  let asJson: IOrdersUpdate;
   try {
     asJson = JSON.parse(update);
   } catch (error) {
     return console.error('Unable to parse message as JSON');
   }
 
-  console.log('asJson', asJson);
-
-  if (asJson.type === 'snapshot') {
-    store.dispatch(snapshotAction(asJson));
-  } else if (asJson.type === 'l2update') {
-    store.dispatch(updateAction(asJson));
-  }
+  store.dispatch(updateOrdersAction(asJson));
 }

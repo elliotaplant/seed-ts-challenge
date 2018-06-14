@@ -1,6 +1,5 @@
 import * as React from 'react';
 import {connect} from 'react-redux';
-import {ordersAsList} from '../../utils';
 
 import './index.css';
 
@@ -8,11 +7,11 @@ import './index.css';
 const OrderBook = ({asks, bids}: any) => (<div className="order-book">
   <div className="order-book-header">BTC/USD</div>
   Bids:
-  {bids && ordersAsList(bids).map(({price, size}: any) => (
+  {bids && bids.map(({price, size}: any) => (
     <div key={price}>Price: {price}, Size: {size}</div>
   ))}
   Asks:
-  {asks && ordersAsList(asks).map(({price, size}: any) => (
+  {asks && asks.map(({price, size}: any) => (
     <div key={price}>Price: {price}, Size: {size}</div>
   ))}
 </div>);
