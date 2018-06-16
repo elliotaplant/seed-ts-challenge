@@ -7,7 +7,7 @@ import handleSocketUpdate from './handleSocketUpdate';
 // Get the WebSocket url based on the environment
 const wsUrl = process.env.NODE_ENV === 'development'
   ? 'ws://127.0.0.1:3030'
-  : `ws://seed-ts-challenge.herokuapp.com/`;
+  : `wss://seed-ts-challenge.herokuapp.com/`;
 
 // Main App class to gather subcomponents
 const App = () => (<div className="app">
