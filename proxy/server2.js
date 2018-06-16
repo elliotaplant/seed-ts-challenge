@@ -9,11 +9,6 @@ gdaxSocket.init();
 
 app.use(express.static('../build'))
 
-app.get('/', function(req, res, next){
-  console.log('get route', req.testing);
-  res.end();
-});
-
 app.ws('/', function(ws, req) {
 
   const messageHandlerId = gdaxSocket.onUpdate((update) => {
