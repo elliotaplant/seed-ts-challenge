@@ -8,7 +8,7 @@ import handleSocketUpdate from './handleSocketUpdate';
 
 // Main App class to gather subcomponents
 const App = () => (<div className="app">
-  <Websocket url="ws://127.0.0.1:1337" onMessage={handleSocketUpdate} />
+  <Websocket url="ws://127.0.0.1:3030" onMessage={handleSocketUpdate} />
   <OrderBook />
 </div>
 );

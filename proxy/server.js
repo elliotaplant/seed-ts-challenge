@@ -25,7 +25,6 @@ wsServer.on('request', function(request) {
     connection.sendUTF(JSON.stringify(update));
   });
 
-
   connection.on('close', function(connection) {
     // close user connection
     if (messageHandlerId) {
