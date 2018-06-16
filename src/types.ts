@@ -1,3 +1,4 @@
+// Types to be used in the app
 export interface IOrder {
   price: string;
   size: string;

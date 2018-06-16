@@ -4,6 +4,7 @@ import { IMidpoint, IOrdersUpdate } from '../../../types';
 import { splitDigits } from '../../../utils';
 import './index.css';
 
+// Component to display the midpoint row in the table
 const Midpoint = ({ spread, midpoint, midpointDelta }: IMidpoint) => {
   const { significant: spreadSignificant } = splitDigits(spread, 8);
   const { significant: midpointSignificant } = splitDigits(midpoint, 8);

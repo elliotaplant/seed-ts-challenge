@@ -10,6 +10,7 @@ interface IOrdersProps {
   className: 'ask' | 'bid';
 }
 
+// Price table data component
 const Price = ({ price }: { price: string }) => {
   const {significant, insignificant} = splitDigits(price, 8);
   return (
@@ -20,6 +21,7 @@ const Price = ({ price }: { price: string }) => {
   );
 }
 
+// Size table data component
 const Size = ({ size }: { size: string }) => {
   const {significant, insignificant} = splitDigits(size, 8);
   return (
@@ -30,7 +32,8 @@ const Size = ({ size }: { size: string }) => {
   );
 }
 
-const Orders = ({ orders, className }: IOrdersProps) => {
+// Generic order row Component
+const Order = ({ orders, className }: IOrdersProps) => {
   return orders ? (
     <Fragment>
       {orders.map(({ price, size }) => (<tr key={price}>
@@ -41,5 +44,5 @@ const Orders = ({ orders, className }: IOrdersProps) => {
   ) : null;
 }
 
-export const Asks = connect(({ orders: { asks: orders }}: IOrdersUpdate) => ({ orders, className: 'ask' }))(Orders);
-export const Bids = connect(({ orders: { bids: orders }}: IOrdersUpdate) => ({ orders, className: 'bid' }))(Orders);
+export const Asks = connect(({ orders: { asks: orders }}: IOrdersUpdate) => ({ orders, className: 'ask' }))(Order);
+export const Bids = connect(({ orders: { bids: orders }}: IOrdersUpdate) => ({ orders, className: 'bid' }))(Order);

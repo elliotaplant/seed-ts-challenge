@@ -1,5 +1,4 @@
 // Typings for react-websocket
-
 declare module 'react-websocket' {
   import * as React from 'react';
 

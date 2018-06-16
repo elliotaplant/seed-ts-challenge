@@ -1,10 +1,10 @@
 import * as React from 'react';
+import './index.css';
 import Midpoint from './Midpoint';
 import { Asks, Bids } from './Orders';
 
-import './index.css';
-
-const OrderBook = () => (<table className="order-book">
+// OrderBookHeader component
+const OrderBookHeader = () => (
   <thead className="order-book-header">
     <tr>
       <th colSpan={2} className="currency-pair">BTC/USD</th>
@@ -14,6 +14,11 @@ const OrderBook = () => (<table className="order-book">
       <th className="order-column-header">Size</th>
     </tr>
   </thead>
+);
+
+// Component to display entire OrderBook
+const OrderBook = () => (<table className="order-book">
+  <OrderBookHeader />
   <tbody className="order-boook-body">
     <Asks />
     <Midpoint />

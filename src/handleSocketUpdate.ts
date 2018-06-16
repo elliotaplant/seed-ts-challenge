@@ -1,8 +1,8 @@
+// Handler for websocket updates to dispatch to the store
 import store from './store';
 import { updateOrdersAction } from './store/actions/order';
 import { IOrdersUpdate } from './types';
 
-// import store from './store';
 export default function handleSocketUpdate(update: any) {
   let asJson: IOrdersUpdate;
   try {
