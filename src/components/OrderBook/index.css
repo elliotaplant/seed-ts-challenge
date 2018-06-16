@@ -1,30 +1,46 @@
 .order-book {
   width: 100%;
   table-layout: fixed;
-  border: 1px solid black;
+  /* border: 1px solid black; */
   border-collapse: collapse;
 }
 
-.currency-pair {
-  column-span: all;
+.order-book-header, .currency-pair {
+  /* border-bottom: 1px solid black; */
 }
 
-.unsignificant {
+.currency-pair {
+  font-size: 30px;
+  column-span: all;
+  padding: 5px;
+}
+
+.order-column-header {
+  font-size: 20px;
+  padding: 3px;
+}
+
+.insignificant {
   color: #999;
 }
 
 .order-data {
   text-align: center;
+  padding: 3px 0;
 }
+
 .order-boook-body>tr:nth-child(even) {
   background: #eee;
 }
+
 /* .order-boook-body>tr:nth-child(even)>.order-data:first-child {
   border-right-color: #eee;
 } */
 
-.order-data.price {
+.order-data.price.ask {
+  color: #4da53c;
 }
 
-.order-data.size {
+.order-data.price.bid {
+  color: #ff6939;
 }

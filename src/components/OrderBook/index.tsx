@@ -7,42 +7,43 @@ import { splitDigits } from '../../utils';
 import './index.css';
 
 interface IOrdersProps {
-  orders: IOrder[]
+  orders: IOrder[];
+  className: 'ask' | 'bid';
 }
 
 const Price = ({ price }: { price: string }) => {
-  const {significant, unsignificant} = splitDigits(price, 8);
+  const {significant, insignificant} = splitDigits(price, 8);
   return (
     <Fragment>
       <span className="significant">{significant}</span>
-      <span className="unsignificant">{unsignificant}</span>
+      <span className="insignificant">{insignificant}</span>
     </Fragment>
   );
 }
 
 const Size = ({ size }: { size: string }) => {
-  const {significant, unsignificant} = splitDigits(size, 8);
+  const {significant, insignificant} = splitDigits(size, 8);
   return (
     <Fragment>
       <span className="significant">{significant}</span>
-      <span className="unsignificant">{unsignificant}</span>
+      <span className="insignificant">{insignificant}</span>
     </Fragment>
   );
 }
 
-const Orders = ({ orders }: IOrdersProps) => {
+const Orders = ({ orders, className }: IOrdersProps) => {
   return orders ? (
     <Fragment>
       {orders.map(({ price, size }) => (<tr key={price}>
-        <td className="order-data price"><Price price={price} /></td>
-        <td className="order-data size"><Size size={size} /></td>
+        <td className={`order-data price ${className}`}><Price price={price} /></td>
+        <td className={`order-data size ${className}`}><Size size={size} /></td>
       </tr>))}
     </Fragment>
   ) : null;
 }
 
-const Asks = connect(({ asks: orders }: IOrdersUpdate) => ({ orders }))(Orders);
-const Bids = connect(({ bids: orders }: IOrdersUpdate) => ({ orders }))(Orders);
+const Asks = connect(({ asks: orders }: IOrdersUpdate) => ({ orders, className: 'ask' }))(Orders);
+const Bids = connect(({ bids: orders }: IOrdersUpdate) => ({ orders, className: 'bid' }))(Orders);
 
 const OrderBook = () => (<table className="order-book">
   <thead className="order-book-header">
