@@ -1,11 +1,15 @@
 const Gdax = require('gdax');
 const uuid = require('uuid');
 
+// GdaxSocket is a class to maintain data gathered from the GDAX API
 class GdaxSocket {
-  // Initialize listeners
+
   constructor() {
-    // List of listeners for updates
+    // Handlers listening to the 'update' event
     this.updateHandlers = {};
+
+    // Frequency to send updates to WS clients
+    this.UPDATE_INTERVAL = 500; // ms
 
     // Store maps of price:size to send to front end
     this.asks = {};
@@ -17,8 +21,13 @@ class GdaxSocket {
     // Number of orders to send to clients on update
     this.sendSize = 25;
 
-    // Initialize midpoint price
+    // Midpoint price
     this.midpoint = 0;
+
+    // Constants for the GDAX API
+    this.EXCHANGES = ['BTC-USD'];
+    this.GDAX_WS_URL = 'wss://ws-feed.gdax.com';
+    this.GDAX_WS_OPTIONS = {channels: ['level2']};
   }
 
   // Add a handler to the data update event
@@ -42,33 +51,15 @@ class GdaxSocket {
 
   // Initialize the GDAX web socket
   init() {
-    const websocket = new Gdax.WebsocketClient(['BTC-USD'], 'wss://ws-feed.gdax.com', null, {channels: ['level2']});
-    this.interval = setInterval(() => this.sendUpdate(), 500);
+    const websocket = new Gdax.WebsocketClient(this.EXCHANGES, this.GDAX_WS_URL, null, this.GDAX_WS_OPTIONS);
+    this.interval = setInterval(() => this.sendUpdate(), this.UPDATE_INTERVAL);
 
     websocket.on('message', (data) => {
-
       if (data.type === 'snapshot') {
-        // On the initial 'snapshot' event, create the asks and bids data
-        let {asks, bids, type} = data;
-        this.asks = this.pruneSizeMap(this.ordersToPriceMap(asks), null, -1);
-        this.bids = this.pruneSizeMap(this.ordersToPriceMap(bids));
+        this.handleSnapshot(data);
         this.sendUpdate();
       } else if (data.type === 'l2update') {
-        const {changes, type} = data;
-
-        // Find the maxBuy and minSell to remove overlap that didn't get deleted by gdax
-        const maxBuy = this.maxBuy(changes);
-        const minSell = this.minSell(changes);
-
-        const {buy, sell} = this.changesToPriceMaps(changes);
-        this.asks = this.pruneSizeMap({
-          ...this.asks,
-          ...sell
-        }, maxBuy, -1);
-        this.bids = this.pruneSizeMap({
-          ...this.bids,
-          ...buy
-        }, minSell);
+        this.handleUpdate(data);
       }
     });
 
@@ -77,14 +68,39 @@ class GdaxSocket {
     });
   }
 
-  ordersToPriceMap(orders) {
+  // On the initial 'snapshot' event, create the asks and bids data
+  handleSnapshot(data) {
+    const {asks, bids} = data;
+    this.asks = this.pruneSizeMap(this.ordersToSizeMap(asks), null, -1);
+    this.bids = this.pruneSizeMap(this.ordersToSizeMap(bids));
+  }
+
+  // On each update from GDAX, update the internal price state
+  handleUpdate(data) {
+    const {changes, type} = data;
+
+    // Find the maxBuy and minSell to remove overlap that didn't get deleted by gdax
+    const maxBuy = this.maxBuy(changes);
+    const minSell = this.minSell(changes);
+
+    // Separate the buy and sell data in the changes
+    const {buy, sell} = this.changesToSizeMaps(changes);
+
+    // Update the stored asks and bids with the new changes
+    this.asks = this.pruneSizeMap({ ...this.asks, ...sell }, maxBuy, -1);
+    this.bids = this.pruneSizeMap({ ...this.bids, ...buy }, minSell);
+  }
+
+  // Converts a list of orders [ [price, size] ] to a size map { price: size }
+  ordersToSizeMap(orders) {
     return orders.reduce((priceMap, [price, size]) => {
       priceMap[this.serializePrice(price)] = size;
       return priceMap
     }, {});
   }
 
-  changesToPriceMaps(changes) {
+  // Converts a list of changes [ [side, price, size] ] to size maps for buy and sell sides
+  changesToSizeMaps(changes) {
     return changes.reduce((priceMaps, [side, price, size]) => {
       priceMaps[side][price] = size;
       return priceMaps
@@ -94,6 +110,7 @@ class GdaxSocket {
     });
   }
 
+  // Prunes a size map by removing overlapping orders and orders with size "0"
   pruneSizeMap(priceMap, overlap, direction) {
     const filteredOrders = Object.keys(priceMap)
       .filter(price => priceMap[price] !== '0')
@@ -103,31 +120,36 @@ class GdaxSocket {
     const slicedOrders = direction === -1
       ? sortedOrders.slice(-this.storageSize)
       : sortedOrders.slice(0, this.storageSize);
-    return this.ordersToPriceMap(slicedOrders.map(price => [
+    return this.ordersToSizeMap(slicedOrders.map(price => [
       price, priceMap[price]
     ]));
   }
 
+  // Sorts a string list of prices from high to low
   sortPrices(prices) {
     return prices.sort((a, b) => (+a < +b ? 1 : (+a > +b ? -1 : 0)));
   }
 
+  // Serializes a string price to always have 8 digit precision
   serializePrice(price) {
     return (+price).toFixed(8);
   }
 
-  priceMapToOrders(priceMap) {
+  // Converts a size map to a list of orders [ {price, size} ]
+  sizeMapToOrders(priceMap) {
     return Object.keys(priceMap)
       .map(this.serializePrice)
       .map(price => ({price, size: priceMap[price]}));
   }
 
+  // Finds the maximum buy order in a list of changes
   maxBuy(changes) {
     return changes.filter(([side, price, size]) => side === 'buy' && size !== '0')
       .map(([s, price]) => price)
       .sort(this.sortPrices)[0];
   }
 
+  // Finds the minimum sell order in a list of changes
   minSell(changes) {
     return changes.filter(([side, price, size]) => side === 'sell' && size !== '0')
       .map(([s, price]) => price)
@@ -135,11 +157,13 @@ class GdaxSocket {
       .slice(-1)[0];
   }
 
+  // Formats the price state to be digested by the front end
   formatPriceData() {
-    const asks = this.priceMapToOrders(this.asks).slice(-this.sendSize);
-    const bids = this.priceMapToOrders(this.bids).slice(0, this.sendSize);
+    // Gets asks and bids closest to the midpoint
+    const asks = this.sizeMapToOrders(this.asks).slice(-this.sendSize);
+    const bids = this.sizeMapToOrders(this.bids).slice(0, this.sendSize);
 
-
+    // Calfulates data about the midpoint
     const {midpoint, spread} = this.calculateMidpointSpread(bids, asks);
     const midpointDelta = this.calculateMidpointDelta(midpoint);
     if (midpointDelta !== 0) {
@@ -147,6 +171,7 @@ class GdaxSocket {
     }
     this.midpoint = midpoint;
 
+    // Packages the state to be sent to the FE
     return {
       orders: {
         asks,

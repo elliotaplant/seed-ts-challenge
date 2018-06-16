@@ -1,34 +1,35 @@
-const WebSocketServer = require('websocket').server;
-const http = require('http');
+var express = require('express');
+var app = express();
+var expressWs = require('express-ws')(app);
 const GdaxSocket = require('./GdaxSocket');
+const PORT = process.env.PORT || 3030;
 
 // Open the GdaxSocket, start receiving data
 const gdaxSocket = new GdaxSocket();
 gdaxSocket.init();
 
-const server = http.createServer(function(request, response) {
-  // process HTTP request. Since we're writing just WebSockets
-  // server we don't have to implement anything.
-});
+// Tell the express server where to retreive static files
+app.use(express.static('../build'))
 
-server.listen(1337, function() {
-  console.log('connected!');
-});
-
-// create the server
-wsServer = new WebSocketServer({httpServer: server});
-
-// WebSocket server
-wsServer.on('request', function(request) {
-  const connection = request.accept(null, request.origin);
+// Tell the app how to handle WebSocket requests
+app.ws('/', (ws) => {
+  // Add a listener to the update event of the GdaxSocket
   const messageHandlerId = gdaxSocket.onUpdate((update) => {
-    connection.sendUTF(JSON.stringify(update));
+    try {
+      // Attempt to relay the updated GdaxSocket state to the FE WebSocket
+      ws.send(JSON.stringify(update));
+    } catch (error) {
+      console.error('Failed to send update');
+    }
   });
 
-  connection.on('close', function(connection) {
-    // close user connection
+  // When the WebSocket closes, remove the handler from the GdaxSocket
+  ws.on('close', (connection) => {
     if (messageHandlerId) {
       gdaxSocket.removeHandler(messageHandlerId);
     };
   });
 });
+
+// Start the express server on the specified PORT
+app.listen(PORT, () => console.log(`App listening on ${PORT}`));
