@@ -9,9 +9,9 @@ const OrderBookHeader = () => (
     <tr>
       <th colSpan={2} className="currency-pair">BTC/USD</th>
     </tr>
-    <tr>
-      <th className="order-column-header">Price</th>
-      <th className="order-column-header">Size</th>
+    <tr className="column-header-row">
+      <th className="order-column-header">Price (USD)</th>
+      <th className="order-column-header">Size (BTC)</th>
     </tr>
   </thead>
 );

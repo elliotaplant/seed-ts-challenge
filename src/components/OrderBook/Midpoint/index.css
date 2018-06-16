@@ -1,8 +1,11 @@
 .midpoint-data {
   text-align: center;
+  padding: 4px;
+  border-top: 
 }
 .midpoint-data>span {
   margin: 0 5px;
+  font-size: 18px;
 }
 .midpoint-delta.positive {
   color: #4da53c;

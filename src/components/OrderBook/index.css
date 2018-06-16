@@ -1,12 +1,10 @@
 .order-book {
   width: 100%;
   table-layout: fixed;
-  /* border: 1px solid black; */
   border-collapse: collapse;
 }
 
 .order-book-header, .currency-pair {
-  /* border-bottom: 1px solid black; */
 }
 
 .currency-pair {
@@ -18,4 +16,8 @@
 .order-column-header {
   font-size: 20px;
   padding: 3px;
+}
+
+.column-header-row {
+  border-bottom: 1px solid white;
 }
