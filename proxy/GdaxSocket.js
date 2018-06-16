@@ -128,8 +128,11 @@ class GdaxSocket {
     const asks = this.priceMapToOrders(this.asks).slice(0, this.sendSize);
     const bids = this.priceMapToOrders(this.bids).slice(-this.sendSize);
 
-    const {midpoint, spread} = this.calculateMidpointSpread();
+    const {midpoint, spread} = this.calculateMidpointSpread(bids, asks);
     const midpointDelta = (this.midpoint - midpoint) / this.midpoint;
+    if (midpointDelta !== 0) {
+      this.midpointDelta = midpointDelta;
+    }
     this.midpoint = midpoint;
 
     return {
@@ -140,19 +143,23 @@ class GdaxSocket {
       midpoint: {
         midpoint,
         spread,
-        midpointDelta
+        midpointDelta: this.midpointDelta
       }
     };
   }
 
-  calculateMidpointSpread() {
-    const maxBid = +this.bids[this.bids.length - 1];
-    const minAsk = +this.asks[0];
+  calculateMidpointSpread(bids, asks) {
+    try {
+      const maxBid = +bids[bids.length - 1].price;
+      const minAsk = +asks[0].price;
 
-    // Midpoint is the average of maxBid and minAsk
-    const midpoint = (maxBid + minAsk) / 2;
-    const spread = minAsk - maxBid;
-    return {midpoint, spread};
+      // Midpoint is the average of maxBid and minAsk
+      const midpoint = (maxBid + minAsk) / 2;
+      const spread = minAsk - maxBid;
+      return {midpoint, spread};
+    } catch (error) {
+      return {midpoint: 0, spread: 0}
+    }
   }
 }
 

@@ -1,0 +1,12 @@
+.midpoint-data {
+  text-align: center;
+}
+.midpoint-data>span {
+  margin: 0 5px;
+}
+.midpoint-delta.positive {
+  color: #4da53c;
+}
+.midpoint-delta.negative {
+  color: #ff6939;
+}
