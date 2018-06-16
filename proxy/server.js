@@ -1,6 +1,6 @@
-var express = require('express');
-var app = express();
-var expressWs = require('express-ws')(app);
+const express = require('express');
+const app = express();
+const expressWs = require('express-ws')(app);
 const GdaxSocket = require('./GdaxSocket');
 const PORT = process.env.PORT || 3030;
 
