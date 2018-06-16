@@ -162,8 +162,8 @@ class GdaxSocket {
 
   calculateMidpointSpread(bids, asks) {
     try {
-      const maxBid = +bids[bids.length - 1].price;
-      const minAsk = +asks[0].price;
+      const maxBid = +bids[0].price;
+      const minAsk = +asks[bids.length - 1].price;
 
       // Midpoint is the average of maxBid and minAsk
       const midpoint = (maxBid + minAsk) / 2;
