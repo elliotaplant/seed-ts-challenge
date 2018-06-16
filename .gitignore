@@ -6,8 +6,8 @@
 # testing
 /coverage
 
-# production
-/build
+# production - don't ignore so we can send to heroku
+# /build
 
 # misc
 .DS_Store
