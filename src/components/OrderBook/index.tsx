@@ -15,9 +15,9 @@ const OrderBook = () => (<table className="order-book">
     </tr>
   </thead>
   <tbody className="order-boook-body">
-    <Bids />
-    <Midpoint />
     <Asks />
+    <Midpoint />
+    <Bids />
   </tbody>
 </table>);
 

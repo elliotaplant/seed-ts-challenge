@@ -11,11 +11,11 @@
   border-right-color: #eee;
 } */
 
-.order-data.price.ask {
+.order-data.price.bid {
   color: #4da53c;
 }
 
-.order-data.price.bid {
+.order-data.price.ask {
   color: #ff6939;
 }
 

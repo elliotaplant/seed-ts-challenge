@@ -21,22 +21,26 @@ class GdaxSocket {
     this.midpoint = 0;
   }
 
+  // Add a handler to the data update event
   onUpdate(handler) {
     const id = uuid();
     this.updateHandlers[id] = handler;
     return id;
   }
 
+  // Remove a handler from the data update event
   removeHandler(id) {
     delete this.updateHandlers[id];
   }
 
+  // Send an update to all listeners of the update event
   sendUpdate() {
     const priceData = this.formatPriceData();
     Object.keys(this.updateHandlers)
       .forEach(handlerId => this.updateHandlers[handlerId](priceData));
   }
 
+  // Initialize the GDAX web socket
   init() {
     const websocket = new Gdax.WebsocketClient(['BTC-USD'], 'wss://ws-feed.gdax.com', null, {channels: ['level2']});
     this.interval = setInterval(() => this.sendUpdate(), 500);
@@ -44,6 +48,7 @@ class GdaxSocket {
     websocket.on('message', (data) => {
 
       if (data.type === 'snapshot') {
+        // On the initial 'snapshot' event, create the asks and bids data
         let {asks, bids, type} = data;
         this.asks = this.pruneSizeMap(this.ordersToPriceMap(asks));
         this.bids = this.pruneSizeMap(this.ordersToPriceMap(bids), null, -1);
@@ -74,7 +79,7 @@ class GdaxSocket {
 
   ordersToPriceMap(orders) {
     return orders.reduce((priceMap, [price, size]) => {
-      priceMap[price] = size;
+      priceMap[this.serializePrice(price)] = size;
       return priceMap
     }, {});
   }
@@ -107,8 +112,14 @@ class GdaxSocket {
     return prices.sort((a, b) => (+a > +b ? 1 : (+a < +b ? -1 : 0)));
   }
 
+  serializePrice(price) {
+    return (+price).toFixed(8);
+  }
+
   priceMapToOrders(priceMap) {
-    return Object.keys(priceMap).map(price => ({price, size: priceMap[price]}));
+    return Object.keys(priceMap)
+      .map(this.serializePrice)
+      .map(price => ({price, size: priceMap[price]}));
   }
 
   maxBuy(changes) {
@@ -125,11 +136,12 @@ class GdaxSocket {
   }
 
   formatPriceData() {
-    const asks = this.priceMapToOrders(this.asks).slice(0, this.sendSize);
-    const bids = this.priceMapToOrders(this.bids).slice(-this.sendSize);
+    const asks = this.priceMapToOrders(this.asks).slice(0, this.sendSize).reverse();
+    const bids = this.priceMapToOrders(this.bids).slice(-this.sendSize).reverse();
 
+    console.log('bids[0], bids(-1), asks[0], asks(-1)', bids[0].price, bids.slice(-1)[0].price, asks[0].price, asks.slice(-1)[0].price);
     const {midpoint, spread} = this.calculateMidpointSpread(bids, asks);
-    const midpointDelta = (this.midpoint - midpoint) / this.midpoint;
+    const midpointDelta = this.calculateMidpointDelta(midpoint);
     if (midpointDelta !== 0) {
       this.midpointDelta = midpointDelta;
     }
@@ -160,6 +172,10 @@ class GdaxSocket {
     } catch (error) {
       return {midpoint: 0, spread: 0}
     }
+  }
+
+  calculateMidpointDelta(newMidpoint) {
+    return (this.midpoint - newMidpoint) / this.midpoint;
   }
 }
 
