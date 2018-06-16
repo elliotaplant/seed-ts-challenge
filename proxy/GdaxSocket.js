@@ -50,8 +50,8 @@ class GdaxSocket {
       if (data.type === 'snapshot') {
         // On the initial 'snapshot' event, create the asks and bids data
         let {asks, bids, type} = data;
-        this.asks = this.pruneSizeMap(this.ordersToPriceMap(asks));
-        this.bids = this.pruneSizeMap(this.ordersToPriceMap(bids), null, -1);
+        this.asks = this.pruneSizeMap(this.ordersToPriceMap(asks), null, -1);
+        this.bids = this.pruneSizeMap(this.ordersToPriceMap(bids));
         this.sendUpdate();
       } else if (data.type === 'l2update') {
         const {changes, type} = data;
@@ -64,11 +64,11 @@ class GdaxSocket {
         this.asks = this.pruneSizeMap({
           ...this.asks,
           ...sell
-        }, maxBuy);
+        }, maxBuy, -1);
         this.bids = this.pruneSizeMap({
           ...this.bids,
           ...buy
-        }, minSell, -1);
+        }, minSell);
       }
     });
 
@@ -97,7 +97,7 @@ class GdaxSocket {
   pruneSizeMap(priceMap, overlap, direction) {
     const filteredOrders = Object.keys(priceMap)
       .filter(price => priceMap[price] !== '0')
-      .filter(price => !overlap || (direction === -1 ? +price < +overlap : +price > +overlap));
+      .filter(price => !overlap || (direction === -1 ? +price > +overlap : +price < +overlap));
 
     const sortedOrders = this.sortPrices(filteredOrders);
     const slicedOrders = direction === -1
@@ -109,7 +109,7 @@ class GdaxSocket {
   }
 
   sortPrices(prices) {
-    return prices.sort((a, b) => (+a > +b ? 1 : (+a < +b ? -1 : 0)));
+    return prices.sort((a, b) => (+a < +b ? 1 : (+a > +b ? -1 : 0)));
   }
 
   serializePrice(price) {
@@ -125,26 +125,20 @@ class GdaxSocket {
   maxBuy(changes) {
     return changes.filter(([side, price, size]) => side === 'buy' && size !== '0')
       .map(([s, price]) => price)
-      .sort(this.sortPrices)
-      .slice(-1)[0];
+      .sort(this.sortPrices)[0];
   }
 
   minSell(changes) {
     return changes.filter(([side, price, size]) => side === 'sell' && size !== '0')
       .map(([s, price]) => price)
-      .sort(this.sortPrices)[0];
+      .sort(this.sortPrices)
+      .slice(-1)[0];
   }
 
   formatPriceData() {
-    // Reversing asks and bids because FE wants them to be bids[0] < bids[-1] < asks[0] < asks[-1]
-    const asks = this.priceMapToOrders(this.asks).slice(0, this.sendSize).reverse();
-    const bids = this.priceMapToOrders(this.bids).slice(-this.sendSize).reverse();
-    try {
+    const asks = this.priceMapToOrders(this.asks).slice(-this.sendSize);
+    const bids = this.priceMapToOrders(this.bids).slice(0, this.sendSize);
 
-      console.log('bids[0], bids(-1), asks[0], asks(-1)', bids[0].price, bids.slice(-1)[0].price, asks[0].price, asks.slice(-1)[0].price);
-    } catch (e) {
-
-    }
 
     const {midpoint, spread} = this.calculateMidpointSpread(bids, asks);
     const midpointDelta = this.calculateMidpointDelta(midpoint);
@@ -170,7 +164,6 @@ class GdaxSocket {
     try {
       const maxBid = +bids[bids.length - 1].price;
       const minAsk = +asks[0].price;
-      console.log('bids[0], bids(-1), asks[0], asks(-1)', bids[0].price, bids.slice(-1)[0].price, asks[0].price, asks.slice(-1)[0].price);
 
       // Midpoint is the average of maxBid and minAsk
       const midpoint = (maxBid + minAsk) / 2;
