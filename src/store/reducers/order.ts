@@ -3,13 +3,19 @@ import { UPDATE_ORDER } from '../types';
 
 // Reducer for handling all actions
 export default function reducer(state: IOrdersUpdate = {
-  asks: [],
-  bids: []
+  midpoint: {
+    midpoint: 0,
+    midpointDelta: 0,
+    spread: 0,
+  },
+  orders: {
+    asks: [],
+    bids: [],
+  },
 }, { type, payload }: any) {
-  // The search request has been sent
+  // The only action we are resolving is UPDATE_ORDER, so we can spread the entire payload
   if (type === UPDATE_ORDER) {
-    const { asks, bids } = payload;
-    return { ...state, asks, bids };
+    return { ...state, ...payload };
   }
   return state;
 }

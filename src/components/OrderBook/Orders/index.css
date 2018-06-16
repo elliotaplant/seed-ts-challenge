@@ -1,0 +1,24 @@
+.order-data {
+  text-align: center;
+  padding: 3px 0;
+}
+
+.order-boook-body>tr:nth-child(even) {
+  background: #294556;
+}
+
+/* .order-boook-body>tr:nth-child(even)>.order-data:first-child {
+  border-right-color: #eee;
+} */
+
+.order-data.price.ask {
+  color: #4da53c;
+}
+
+.order-data.price.bid {
+  color: #ff6939;
+}
+
+.insignificant {
+  color: #999;
+}

@@ -2,7 +2,15 @@ export interface IOrder {
   price: string;
   size: string;
 }
+export interface IMidpoint {
+  midpoint: number;
+  spread: number;
+  midpointDelta: number;
+}
 export interface IOrdersUpdate {
-  asks: IOrder[];
-  bids: IOrder[];
+  orders: {
+    asks: IOrder[];
+    bids: IOrder[];
+  },
+  midpoint: IMidpoint;
 }

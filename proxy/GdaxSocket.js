@@ -16,6 +16,9 @@ class GdaxSocket {
 
     // Number of orders to send to clients on update
     this.sendSize = 25;
+
+    // Initialize midpoint price
+    this.midpoint = 0;
   }
 
   onUpdate(handler) {
@@ -29,12 +32,9 @@ class GdaxSocket {
   }
 
   sendUpdate() {
-    const slicedOrderState = {
-      asks: this.priceMapToOrders(this.asks).slice(0, this.sendSize),
-      bids: this.priceMapToOrders(this.bids).slice(-this.sendSize)
-    };
-
-    Object.keys(this.updateHandlers).forEach(handlerId => this.updateHandlers[handlerId](slicedOrderState));
+    const priceData = this.formatPriceData();
+    Object.keys(this.updateHandlers)
+      .forEach(handlerId => this.updateHandlers[handlerId](priceData));
   }
 
   init() {
@@ -122,6 +122,37 @@ class GdaxSocket {
     return changes.filter(([side, price, size]) => side === 'sell' && size !== '0')
       .map(([s, price]) => price)
       .sort(this.sortPrices)[0];
+  }
+
+  formatPriceData() {
+    const asks = this.priceMapToOrders(this.asks).slice(0, this.sendSize);
+    const bids = this.priceMapToOrders(this.bids).slice(-this.sendSize);
+
+    const {midpoint, spread} = this.calculateMidpointSpread();
+    const midpointDelta = (this.midpoint - midpoint) / this.midpoint;
+    this.midpoint = midpoint;
+
+    return {
+      orders: {
+        asks,
+        bids
+      },
+      midpoint: {
+        midpoint,
+        spread,
+        midpointDelta
+      }
+    };
+  }
+
+  calculateMidpointSpread() {
+    const maxBid = +this.bids[this.bids.length - 1];
+    const minAsk = +this.asks[0];
+
+    // Midpoint is the average of maxBid and minAsk
+    const midpoint = (maxBid + minAsk) / 2;
+    const spread = minAsk - maxBid;
+    return {midpoint, spread};
   }
 }
 
