@@ -7,11 +7,7 @@ const GdaxSocket = require('./GdaxSocket');
 const gdaxSocket = new GdaxSocket();
 gdaxSocket.init();
 
-app.use(function (req, res, next) {
-  console.log('middleware');
-  req.testing = 'testing';
-  return next();
-});
+app.use(express.static('../build'))
 
 app.get('/', function(req, res, next){
   console.log('get route', req.testing);
