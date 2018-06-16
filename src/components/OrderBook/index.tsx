@@ -10,19 +10,32 @@ interface IOrdersProps {
 
 const Orders = ({ orders }: IOrdersProps) => {
   return orders ? (
-    <div>
-      {orders.map(({ price, size }) => <div key={price}>Price: {price}, Size: {size}</div>)}
-    </div>
+    <>
+      {orders.map(({ price, size }) => (<tr key={price}>
+        <td>{price}</td>
+        <td>{size}</td>
+      </tr>))}
+    </>
   ) : null;
 }
 
 const Asks = connect(({ asks: orders }: IOrdersUpdate) => ({ orders }))(Orders);
 const Bids = connect(({ bids: orders }: IOrdersUpdate) => ({ orders }))(Orders);
 
-const OrderBook = () => (<div className="order-book">
-  <div className="order-book-header">BTC/USD</div>
-  Bids: <Bids />
-  Asks: <Asks />
-</div>);
+const OrderBook = () => (<table className="order-book">
+  <thead>
+    <tr>
+      <th className="order-book-header">BTC/USD</th>
+    </tr>
+    <tr>
+      <th className="order-column-header">Price</th>
+      <th className="order-column-header">Size</th>
+    </tr>
+  </thead>
+  <tbody>
+    <Bids />
+    <Asks />
+  </tbody>
+</table>);
 
 export default OrderBook;
