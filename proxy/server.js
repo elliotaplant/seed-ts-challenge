@@ -9,7 +9,11 @@ const gdaxSocket = new GdaxSocket();
 gdaxSocket.init();
 
 // Tell the express server where to retreive static files
-app.use(express.static('../build'))
+app.use(express.static('./build'))
+
+app.get('/', function(req, res){
+  res.end();
+});
 
 // Tell the app how to handle WebSocket requests
 app.ws('/', (ws) => {
