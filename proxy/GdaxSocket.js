@@ -29,10 +29,12 @@ class GdaxSocket {
   }
 
   sendUpdate() {
-    Object.keys(this.updateHandlers).forEach(handlerId => this.updateHandlers[handlerId]({
+    const slicedOrderState = {
       asks: this.priceMapToOrders(this.asks).slice(0, this.sendSize),
       bids: this.priceMapToOrders(this.bids).slice(-this.sendSize)
-    }));
+    };
+
+    Object.keys(this.updateHandlers).forEach(handlerId => this.updateHandlers[handlerId](slicedOrderState));
   }
 
   init() {

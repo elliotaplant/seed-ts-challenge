@@ -1,3 +1,32 @@
 .order-book {
+  width: 100%;
+  max-width: 1024px;
+  margin: 0 auto;
+  padding: 0 15px;
+  table-layout: fixed;
+}
 
+.currency-pair {
+  column-span: all;
+}
+
+.unsignificant {
+  color: #999;
+}
+
+.order-data {
+  text-align: center;
+}
+.order-boook-body>tr:nth-child(even) {
+  background: #eee;
+}
+/* .order-boook-body>tr:nth-child(even)>.order-data:first-child {
+  border-right-color: #eee;
+} */
+
+.order-data.price {
+}
+
+.order-data.size {
+  text-align: left;
 }
