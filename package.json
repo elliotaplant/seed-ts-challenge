@@ -29,7 +29,7 @@
     "typescript": "^2.9.1"
   },
   "scripts": {
-    "start": "npm run build && node proxy/server.js",
+    "start": "node proxy/server.js",
     "dev": "react-scripts-ts start",
     "build": "react-scripts-ts build",
     "test": "react-scripts-ts test --env=jsdom",
