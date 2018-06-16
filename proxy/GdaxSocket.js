@@ -136,10 +136,16 @@ class GdaxSocket {
   }
 
   formatPriceData() {
+    // Reversing asks and bids because FE wants them to be bids[0] < bids[-1] < asks[0] < asks[-1]
     const asks = this.priceMapToOrders(this.asks).slice(0, this.sendSize).reverse();
     const bids = this.priceMapToOrders(this.bids).slice(-this.sendSize).reverse();
+    try {
 
-    console.log('bids[0], bids(-1), asks[0], asks(-1)', bids[0].price, bids.slice(-1)[0].price, asks[0].price, asks.slice(-1)[0].price);
+      console.log('bids[0], bids(-1), asks[0], asks(-1)', bids[0].price, bids.slice(-1)[0].price, asks[0].price, asks.slice(-1)[0].price);
+    } catch (e) {
+
+    }
+
     const {midpoint, spread} = this.calculateMidpointSpread(bids, asks);
     const midpointDelta = this.calculateMidpointDelta(midpoint);
     if (midpointDelta !== 0) {
@@ -164,6 +170,7 @@ class GdaxSocket {
     try {
       const maxBid = +bids[bids.length - 1].price;
       const minAsk = +asks[0].price;
+      console.log('bids[0], bids(-1), asks[0], asks(-1)', bids[0].price, bids.slice(-1)[0].price, asks[0].price, asks.slice(-1)[0].price);
 
       // Midpoint is the average of maxBid and minAsk
       const midpoint = (maxBid + minAsk) / 2;
